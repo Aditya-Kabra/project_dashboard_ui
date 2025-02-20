@@ -1,249 +1,391 @@
-import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Plus, Filter, ChevronRight, LayoutGrid, CheckCircle2, Circle } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Management Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
 
-const ProjectDashboard = () => {
-  const [projects, setProjects] = useState([
-    {
-      id: 1,
-      title: 'E-commerce Platform',
-      category: 'Client',
-      stage: 'MVP',
-      description: 'Building a scalable e-commerce platform with React and Node.js. Implementing core features like product catalog, cart, and checkout.',
-      tasks: [
-        { id: 1, title: 'Set up authentication', priority: 'Need', status: 'Done' },
-        { id: 2, title: 'Design database schema', priority: 'Need', status: 'In Progress' },
-        { id: 3, title: 'Implement cart functionality', priority: 'Need', status: 'Todo' },
-        { id: 4, title: 'Add analytics dashboard', priority: 'Nice to have', status: 'Todo' }
-      ]
-    },
-    {
-      id: 2,
-      title: 'Machine Learning Course',
-      category: 'Learning',
-      stage: 'Ideation',
-      description: 'Deep learning and neural networks study project. Focusing on practical implementations using PyTorch.',
-      tasks: [
-        { id: 1, title: 'Complete neural networks basics', priority: 'Need', status: 'Done' },
-        { id: 2, title: 'Build first CNN model', priority: 'Need', status: 'Todo' }
-      ]
-    }
-  ]);
+        body {
+            background: #f5f5f5;
+            padding: 20px;
+        }
 
-  const [selectedProject, setSelectedProject] = useState(projects[0]);
-  const [filter, setFilter] = useState('all');
-  const [newTask, setNewTask] = useState({ title: '', priority: 'Need' });
+        .dashboard {
+            display: flex;
+            gap: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
 
-  const getCompletedTaskCount = (tasks) => {
-    return `${tasks.filter(t => t.status === 'Done').length}/${tasks.length} tasks completed`;
-  };
+        .project-list {
+            width: 40%;
+            min-width: 400px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
 
-  const getProgressPercentage = (tasks) => {
-    if (tasks.length === 0) return 0;
-    return (tasks.filter(t => t.status === 'Done').length / tasks.length) * 100;
-  };
+        .project-details {
+            flex: 1;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
 
-  const addTask = (projectId) => {
-    if (!newTask.title.trim()) return;
-    
-    const updatedProjects = projects.map(project => {
-      if (project.id === projectId) {
-        return {
-          ...project,
-          tasks: [...project.tasks, {
-            id: Math.max(...project.tasks.map(t => t.id)) + 1,
-            ...newTask,
-            status: 'Todo'
-          }]
-        };
-      }
-      return project;
-    });
+        .section-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-    setProjects(updatedProjects);
-    setSelectedProject(updatedProjects.find(p => p.id === projectId));
-    setNewTask({ title: '', priority: 'Need' });
-  };
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
 
-  const toggleTaskStatus = (projectId, taskId) => {
-    const updatedProjects = projects.map(project => {
-      if (project.id === projectId) {
-        return {
-          ...project,
-          tasks: project.tasks.map(task => {
-            if (task.id === taskId) {
-              const statusMap = { 'Todo': 'In Progress', 'In Progress': 'Done', 'Done': 'Todo' };
-              return { ...task, status: statusMap[task.status] };
-            }
-            return task;
-          })
-        };
-      }
-      return project;
-    });
+        .button-group {
+            display: flex;
+            gap: 8px;
+        }
 
-    setProjects(updatedProjects);
-    setSelectedProject(updatedProjects.find(p => p.id === projectId));
-  };
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
 
-  return (
-    <div className="flex gap-6 w-full max-w-6xl mx-auto">
-      {/* Left Side - Project Overview */}
-      <div className="w-2/5 min-w-[400px]">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>My Projects</CardTitle>
-            <div className="flex gap-2">
-              <button className="p-2 rounded hover:bg-gray-100">
-                <Filter size={20} />
-              </button>
-              <button className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-1">
-                <Plus size={18} /> Add Project
-              </button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4">
-              {projects.map(project => (
-                <div
-                  key={project.id}
-                  className={`p-4 border rounded cursor-pointer hover:border-blue-500 ${
-                    selectedProject?.id === project.id ? 'border-blue-500 bg-blue-50' : ''
-                  }`}
-                  onClick={() => setSelectedProject(project)}
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-semibold">{project.title}</h3>
-                    <div className="flex gap-2">
-                      <span className="px-2 py-1 text-xs rounded bg-blue-100 text-blue-800">
-                        {project.category}
-                      </span>
-                      <span className="px-2 py-1 text-xs rounded bg-purple-100 text-purple-800">
-                        {project.stage}
-                      </span>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">{project.description}</p>
-                  <div className="space-y-2">
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-blue-500 h-2 rounded-full"
-                        style={{ width: `${getProgressPercentage(project.tasks)}%` }}
-                      />
-                    </div>
-                    <div className="text-sm text-gray-600">{getCompletedTaskCount(project.tasks)}</div>
-                  </div>
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .project-cards {
+            padding: 20px;
+            display: grid;
+            gap: 16px;
+        }
+
+        .project-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .project-card:hover {
+            border-color: #2563eb;
+        }
+
+        .project-card.active {
+            border-color: #2563eb;
+            background: #eff6ff;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .badge-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .badge-blue {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-purple {
+            background: #f3e8ff;
+            color: #6b21a8;
+        }
+
+        .project-description {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #2563eb;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .task-count {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .content-section {
+            padding: 20px;
+        }
+
+        .description-section {
+            margin-bottom: 24px;
+        }
+
+        .section-subtitle {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .task-form {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .input-field {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .select-field {
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .task-list {
+            display: grid;
+            gap: 8px;
+        }
+
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+        }
+
+        .task-item:hover {
+            background: #f9fafb;
+        }
+
+        .task-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .checkbox.checked {
+            background: #2563eb;
+            border-color: #2563eb;
+        }
+
+        .task-right {
+            display: flex;
+            gap: 8px;
+        }
+
+        .badge-red {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-yellow {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-green {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .task-title.completed {
+            text-decoration: line-through;
+            color: #9ca3af;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Project List Section -->
+        <div class="project-list">
+            <div class="section-header">
+                <h1 class="section-title">My Projects</h1>
+                <div class="button-group">
+                    <button class="btn btn-secondary">Filter</button>
+                    <button class="btn btn-primary">+ Add Project</button>
                 </div>
-              ))}
             </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Right Side - Project Details */}
-      {selectedProject && (
-        <div className="flex-1">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle className="mb-2">{selectedProject.title}</CardTitle>
-                <div className="flex gap-2">
-                  <span className="px-2 py-1 text-sm rounded bg-blue-100 text-blue-800">
-                    {selectedProject.category}
-                  </span>
-                  <span className="px-2 py-1 text-sm rounded bg-purple-100 text-purple-800">
-                    {selectedProject.stage}
-                  </span>
+            <div class="project-cards">
+                <div class="project-card active">
+                    <div class="card-header">
+                        <h3>E-commerce Platform</h3>
+                        <div class="badge-group">
+                            <span class="badge badge-blue">Client</span>
+                            <span class="badge badge-purple">MVP</span>
+                        </div>
+                    </div>
+                    <p class="project-description">
+                        Building a scalable e-commerce platform with React and Node.js. Implementing core features like product catalog, cart, and checkout.
+                    </p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 60%"></div>
+                    </div>
+                    <span class="task-count">3/5 tasks completed</span>
                 </div>
-              </div>
-              <button className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-1">
-                <Plus size={18} /> Add Task
-              </button>
-            </CardHeader>
-            <CardContent>
-              <div className="mb-6">
-                <h4 className="font-semibold mb-2">Description</h4>
-                <p className="text-gray-600">{selectedProject.description}</p>
-              </div>
 
-              {/* Add Task Form */}
-              <div className="mb-6 flex gap-2">
-                <input
-                  type="text"
-                  value={newTask.title}
-                  onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
-                  placeholder="Enter new task..."
-                  className="flex-1 p-2 border rounded"
-                />
-                <select
-                  value={newTask.priority}
-                  onChange={(e) => setNewTask(prev => ({ ...prev, priority: e.target.value }))}
-                  className="p-2 border rounded"
-                >
-                  <option value="Need">Need to have</option>
-                  <option value="Nice to have">Nice to have</option>
-                </select>
-                <button
-                  onClick={() => addTask(selectedProject.id)}
-                  className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
-                  Add
-                </button>
-              </div>
-
-              {/* Task List */}
-              <div className="space-y-2">
-                {selectedProject.tasks.map(task => (
-                  <div
-                    key={task.id}
-                    className="flex items-center justify-between p-3 border rounded hover:bg-gray-50"
-                  >
-                    <div className="flex items-center gap-3">
-                      <button
-                        onClick={() => toggleTaskStatus(selectedProject.id, task.id)}
-                        className="text-gray-400 hover:text-blue-500"
-                      >
-                        {task.status === 'Done' ? (
-                          <CheckCircle2 className="text-green-500" size={20} />
-                        ) : (
-                          <Circle size={20} />
-                        )}
-                      </button>
-                      <span className={task.status === 'Done' ? 'line-through text-gray-400' : ''}>
-                        {task.title}
-                      </span>
+                <div class="project-card">
+                    <div class="card-header">
+                        <h3>Machine Learning Course</h3>
+                        <div class="badge-group">
+                            <span class="badge badge-blue">Learning</span>
+                            <span class="badge badge-purple">Ideation</span>
+                        </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`px-2 py-1 text-xs rounded ${
-                          task.priority === 'Need'
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}
-                      >
-                        {task.priority}
-                      </span>
-                      <span
-                        className={`px-2 py-1 text-xs rounded ${
-                          task.status === 'Done'
-                            ? 'bg-green-100 text-green-800'
-                            : task.status === 'In Progress'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}
-                      >
-                        {task.status}
-                      </span>
+                    <p class="project-description">
+                        Deep learning and neural networks study project. Focusing on practical implementations using PyTorch.
+                    </p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 30%"></div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                    <span class="task-count">2/6 tasks completed</span>
+                </div>
+            </div>
         </div>
-      )}
-    </div>
-  );
-};
 
-export default ProjectDashboard;
+        <!-- Project Details Section -->
+        <div class="project-details">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">E-commerce Platform</h2>
+                    <div class="badge-group" style="margin-top: 8px;">
+                        <span class="badge badge-blue">Client</span>
+                        <span class="badge badge-purple">MVP</span>
+                    </div>
+                </div>
+                <button class="btn btn-primary">+ Add Task</button>
+            </div>
+            <div class="content-section">
+                <div class="description-section">
+                    <h3 class="section-subtitle">Description</h3>
+                    <p>Building a scalable e-commerce platform with React and Node.js. Implementing core features like product catalog, cart, and checkout.</p>
+                </div>
+
+                <form class="task-form">
+                    <input type="text" placeholder="Enter new task..." class="input-field">
+                    <select class="select-field">
+                        <option>Need to have</option>
+                        <option>Nice to have</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </form>
+
+                <div class="task-list">
+                    <div class="task-item">
+                        <div class="task-left">
+                            <div class="checkbox checked"></div>
+                            <span class="task-title completed">Set up authentication</span>
+                        </div>
+                        <div class="task-right">
+                            <span class="badge badge-red">Need to have</span>
+                            <span class="badge badge-green">Done</span>
+                        </div>
+                    </div>
+
+                    <div class="task-item">
+                        <div class="task-left">
+                            <div class="checkbox"></div>
+                            <span class="task-title">Design database schema</span>
+                        </div>
+                        <div class="task-right">
+                            <span class="badge badge-red">Need to have</span>
+                            <span class="badge badge-yellow">In Progress</span>
+                        </div>
+                    </div>
+
+                    <div class="task-item">
+                        <div class="task-left">
+                            <div class="checkbox"></div>
+                            <span class="task-title">Implement cart functionality</span>
+                        </div>
+                        <div class="task-right">
+                            <span class="badge badge-red">Need to have</span>
+                            <span class="badge badge-blue">Todo</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle task completion
+        document.querySelectorAll('.checkbox').forEach(checkbox => {
+            checkbox.addEventListener('click', () => {
+                checkbox.classList.toggle('checked');
+                const taskTitle = checkbox.nextElementSibling;
+                taskTitle.classList.toggle('completed');
+            });
+        });
+
+        // Toggle active project
+        document.querySelectorAll('.project-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.project-card').forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
