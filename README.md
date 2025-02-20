@@ -6,4 +6,4 @@ A simple project management dashboard built with HTML, CSS, and JavaScript.
 
 - [View Dashboard 2](index2.html)
 
-- [View Dashboard 2](index3.html)
+- [View Dashboard 3](index3.html)
