@@ -1,0 +1,249 @@
+import React, { useState } from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Plus, Filter, ChevronRight, LayoutGrid, CheckCircle2, Circle } from 'lucide-react';
+
+const ProjectDashboard = () => {
+  const [projects, setProjects] = useState([
+    {
+      id: 1,
+      title: 'E-commerce Platform',
+      category: 'Client',
+      stage: 'MVP',
+      description: 'Building a scalable e-commerce platform with React and Node.js. Implementing core features like product catalog, cart, and checkout.',
+      tasks: [
+        { id: 1, title: 'Set up authentication', priority: 'Need', status: 'Done' },
+        { id: 2, title: 'Design database schema', priority: 'Need', status: 'In Progress' },
+        { id: 3, title: 'Implement cart functionality', priority: 'Need', status: 'Todo' },
+        { id: 4, title: 'Add analytics dashboard', priority: 'Nice to have', status: 'Todo' }
+      ]
+    },
+    {
+      id: 2,
+      title: 'Machine Learning Course',
+      category: 'Learning',
+      stage: 'Ideation',
+      description: 'Deep learning and neural networks study project. Focusing on practical implementations using PyTorch.',
+      tasks: [
+        { id: 1, title: 'Complete neural networks basics', priority: 'Need', status: 'Done' },
+        { id: 2, title: 'Build first CNN model', priority: 'Need', status: 'Todo' }
+      ]
+    }
+  ]);
+
+  const [selectedProject, setSelectedProject] = useState(projects[0]);
+  const [filter, setFilter] = useState('all');
+  const [newTask, setNewTask] = useState({ title: '', priority: 'Need' });
+
+  const getCompletedTaskCount = (tasks) => {
+    return `${tasks.filter(t => t.status === 'Done').length}/${tasks.length} tasks completed`;
+  };
+
+  const getProgressPercentage = (tasks) => {
+    if (tasks.length === 0) return 0;
+    return (tasks.filter(t => t.status === 'Done').length / tasks.length) * 100;
+  };
+
+  const addTask = (projectId) => {
+    if (!newTask.title.trim()) return;
+    
+    const updatedProjects = projects.map(project => {
+      if (project.id === projectId) {
+        return {
+          ...project,
+          tasks: [...project.tasks, {
+            id: Math.max(...project.tasks.map(t => t.id)) + 1,
+            ...newTask,
+            status: 'Todo'
+          }]
+        };
+      }
+      return project;
+    });
+
+    setProjects(updatedProjects);
+    setSelectedProject(updatedProjects.find(p => p.id === projectId));
+    setNewTask({ title: '', priority: 'Need' });
+  };
+
+  const toggleTaskStatus = (projectId, taskId) => {
+    const updatedProjects = projects.map(project => {
+      if (project.id === projectId) {
+        return {
+          ...project,
+          tasks: project.tasks.map(task => {
+            if (task.id === taskId) {
+              const statusMap = { 'Todo': 'In Progress', 'In Progress': 'Done', 'Done': 'Todo' };
+              return { ...task, status: statusMap[task.status] };
+            }
+            return task;
+          })
+        };
+      }
+      return project;
+    });
+
+    setProjects(updatedProjects);
+    setSelectedProject(updatedProjects.find(p => p.id === projectId));
+  };
+
+  return (
+    <div className="flex gap-6 w-full max-w-6xl mx-auto">
+      {/* Left Side - Project Overview */}
+      <div className="w-2/5 min-w-[400px]">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>My Projects</CardTitle>
+            <div className="flex gap-2">
+              <button className="p-2 rounded hover:bg-gray-100">
+                <Filter size={20} />
+              </button>
+              <button className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-1">
+                <Plus size={18} /> Add Project
+              </button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4">
+              {projects.map(project => (
+                <div
+                  key={project.id}
+                  className={`p-4 border rounded cursor-pointer hover:border-blue-500 ${
+                    selectedProject?.id === project.id ? 'border-blue-500 bg-blue-50' : ''
+                  }`}
+                  onClick={() => setSelectedProject(project)}
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-semibold">{project.title}</h3>
+                    <div className="flex gap-2">
+                      <span className="px-2 py-1 text-xs rounded bg-blue-100 text-blue-800">
+                        {project.category}
+                      </span>
+                      <span className="px-2 py-1 text-xs rounded bg-purple-100 text-purple-800">
+                        {project.stage}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">{project.description}</p>
+                  <div className="space-y-2">
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className="bg-blue-500 h-2 rounded-full"
+                        style={{ width: `${getProgressPercentage(project.tasks)}%` }}
+                      />
+                    </div>
+                    <div className="text-sm text-gray-600">{getCompletedTaskCount(project.tasks)}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Right Side - Project Details */}
+      {selectedProject && (
+        <div className="flex-1">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="mb-2">{selectedProject.title}</CardTitle>
+                <div className="flex gap-2">
+                  <span className="px-2 py-1 text-sm rounded bg-blue-100 text-blue-800">
+                    {selectedProject.category}
+                  </span>
+                  <span className="px-2 py-1 text-sm rounded bg-purple-100 text-purple-800">
+                    {selectedProject.stage}
+                  </span>
+                </div>
+              </div>
+              <button className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-1">
+                <Plus size={18} /> Add Task
+              </button>
+            </CardHeader>
+            <CardContent>
+              <div className="mb-6">
+                <h4 className="font-semibold mb-2">Description</h4>
+                <p className="text-gray-600">{selectedProject.description}</p>
+              </div>
+
+              {/* Add Task Form */}
+              <div className="mb-6 flex gap-2">
+                <input
+                  type="text"
+                  value={newTask.title}
+                  onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
+                  placeholder="Enter new task..."
+                  className="flex-1 p-2 border rounded"
+                />
+                <select
+                  value={newTask.priority}
+                  onChange={(e) => setNewTask(prev => ({ ...prev, priority: e.target.value }))}
+                  className="p-2 border rounded"
+                >
+                  <option value="Need">Need to have</option>
+                  <option value="Nice to have">Nice to have</option>
+                </select>
+                <button
+                  onClick={() => addTask(selectedProject.id)}
+                  className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  Add
+                </button>
+              </div>
+
+              {/* Task List */}
+              <div className="space-y-2">
+                {selectedProject.tasks.map(task => (
+                  <div
+                    key={task.id}
+                    className="flex items-center justify-between p-3 border rounded hover:bg-gray-50"
+                  >
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => toggleTaskStatus(selectedProject.id, task.id)}
+                        className="text-gray-400 hover:text-blue-500"
+                      >
+                        {task.status === 'Done' ? (
+                          <CheckCircle2 className="text-green-500" size={20} />
+                        ) : (
+                          <Circle size={20} />
+                        )}
+                      </button>
+                      <span className={task.status === 'Done' ? 'line-through text-gray-400' : ''}>
+                        {task.title}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`px-2 py-1 text-xs rounded ${
+                          task.priority === 'Need'
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-gray-100 text-gray-800'
+                        }`}
+                      >
+                        {task.priority}
+                      </span>
+                      <span
+                        className={`px-2 py-1 text-xs rounded ${
+                          task.status === 'Done'
+                            ? 'bg-green-100 text-green-800'
+                            : task.status === 'In Progress'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-gray-100 text-gray-800'
+                        }`}
+                      >
+                        {task.status}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ProjectDashboard;
