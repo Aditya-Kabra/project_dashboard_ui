@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Management Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .dashboard {
+            display: flex;
+            gap: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .project-list {
+            width: 40%;
+            min-width: 400px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .project-details {
+            flex: 1;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .section-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .project-cards {
+            padding: 20px;
+            display: grid;
+            gap: 16px;
+        }
+
+        .project-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .project-card:hover {
+            border-color: #2563eb;
+        }
+
+        .project-card.active {
+            border-color: #2563eb;
+            background: #eff6ff;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #2563eb;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .task-count {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .content-section {
+            padding: 20px;
+        }
+
+        .description-section {
+            margin-bottom: 24px;
+        }
+
+        .section-subtitle {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .task-form {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .input-field {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .select-field {
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .task-list {
+            display: grid;
+            gap: 8px;
+        }
+
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+        }
+
+        .task-item:hover {
+            background: #f9fafb;
+        }
+
+        .task-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .checkbox.checked {
+            background: #2563eb;
+            border-color: #2563eb;
+        }
+
+        .task-right {
+            display: flex;
+            gap: 8px;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .badge-red {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-yellow {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-green {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-blue {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .task-title.completed {
+            text-decoration: line-through;
+            color: #9ca3af;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Project List Section -->
+        <div class="project-list">
+            <div class="section-header">
+                <h1 class="section-title">My Projects</h1>
+                <div class="button-group">
+                    <button class="btn btn-secondary">Filter</button>
+                    <button class="btn btn-primary">+ Add Project</button>
+                </div>
+            </div>
+            <div class="project-cards">
+                <div class="project-card active">
+                    <div class="card-header">
+                        <h3>E-commerce Platform</h3>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 60%"></div>
+                    </div>
+                    <span class="task-count">3/5 tasks completed</span>
+                </div>
+
+                <div class="project-card">
+                    <div class="card-header">
+                        <h3>Machine Learning Course</h3>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 30%"></div>
+                    </div>
+                    <span class="task-count">2/6 tasks completed</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Project Details Section -->
+        <div class="project-details">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">E-commerce Platform</h2>
+                    <div class="badge-group" style="margin-top: 8px;">
+                        <span class="badge badge-blue">Client</span>
+                        <span class="badge badge-purple">MVP</span>
+                    </div>
+                </div>
+                <button class="btn btn-primary">+ Add Task</button>
+            </div>
+            <div class="content-section">
+                <div class="description-section">
+                    <h3 class="section-subtitle">Description</h3>
+                    <p>Building a scalable e-commerce platform with React and Node.js. Implementing core features like product catalog, cart, and checkout.</p>
+                </div>
+
+                <form class="task-form">
+                    <input type="text" placeholder="Enter new task..." class="input-field">
+                    <select class="select-field">
+                        <option>Need to have</option>
+                        <option>Nice to have</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </form>
+
+                <div class="task-list">
+                    <div class="task-item">
+                        <div class="task-left">
+                            <div class="checkbox checked"></div>
+                            <span class="task-title completed">Set up authentication</span>
+                        </div>
+                        <div class="task-right">
+                            <span class="badge badge-red">Need to have</span>
+                            <span class="badge badge-green">Done</span>
+                        </div>
+                    </div>
+
+                    <div class="task-item">
+                        <div class="task-left">
+                            <div class="checkbox"></div>
+                            <span class="task-title">Design database schema</span>
+                        </div>
+                        <div class="task-right">
+                            <span class="badge badge-red">Need to have</span>
+                            <span class="badge badge-yellow">In Progress</span>
+                        </div>
+                    </div>
+
+                    <div class="task-item">
+                        <div class="task-left">
+                            <div class="checkbox"></div>
+                            <span class="task-title">Implement cart functionality</span>
+                        </div>
+                        <div class="task-right">
+                            <span class="badge badge-red">Need to have</span>
+                            <span class="badge badge-blue">Todo</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle task completion
+        document.querySelectorAll('.checkbox').forEach(checkbox => {
+            checkbox.addEventListener('click', () => {
+                checkbox.classList.toggle('checked');
+                const taskTitle = checkbox.nextElementSibling;
+                taskTitle.classList.toggle('completed');
+            });
+        });
+
+        // Toggle active project
+        document.querySelectorAll('.project-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.project-card').forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
